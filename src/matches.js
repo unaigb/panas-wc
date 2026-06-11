@@ -1,6 +1,6 @@
 // Convierte serial de Excel a Date en hora Madrid (UTC+2)
 function toDate(serial, tf) {
-  return new Date((serial - 25569) * 86400000 + tf * 86400000 + 2 * 3600000)
+  return new Date((serial - 25569) * 86400000 + tf * 86400000 - 4 * 3600000)
 }
 
 export const GROUP_TEAMS = {
