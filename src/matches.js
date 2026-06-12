@@ -19,8 +19,8 @@ export const GROUP_TEAMS = {
 }
 
 export const WORST_TEAMS = [
-  'Cabo Verde 🇨🇻', 'Curazao 🇨🇼', 'Haití 🇭🇹', 'Bosnia y Herzegovina 🇧🇦',
-  'Uzbekistán 🇺🇿', 'Jordania 🇯🇴', 'RD Congo 🇨🇩', 'Nueva Zelanda 🇳🇿',
+  'Cabo Verde 🇨🇻', 'Curazao 🇨🇼', 'Haití 🇭🇹', 'Bosnia 🇧🇦',
+  'Uzbekistán 🇺🇿', 'Jordania 🇯🇴', 'RD Congo 🇨🇩', 'N. Zelanda 🇳🇿',
   'Irak 🇮🇶', 'Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿', 'Panamá 🇵🇦', 'Argelia 🇩🇿',
   'Ghana 🇬🇭', 'Paraguay 🇵🇾',
 ]

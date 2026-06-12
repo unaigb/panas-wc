@@ -3,7 +3,7 @@ import './styles.css'
 import { ALL_MATCHES, ELIM_MATCHES, ROUNDS, GROUP_TEAMS, WORST_TEAMS } from './matches.js'
 import { calcGroupTable, getBest3rds, getTeamName, calcWorstTeamBonus } from './bracket.js'
 import { calcPts, hashPass, fmtD, fmtT } from './scoring.js'
-import { loadAll, registerUser, saveResult, savePrediction, saveBonus, saveBonusScore, saveWorstTeam } from './db.js'
+import { loadAll, registerUser, deleteUser, saveResult, savePrediction, saveBonus, saveBonusScore, saveWorstTeam } from './db.js'
 
 const ADMIN_PASS = 'panas2026'
 const BONUS_LOCK = new Date('2026-06-11T20:00:00+02:00')
@@ -424,7 +424,19 @@ export default function App() {
                             {isMe2 && <span style={{ marginLeft: 4, fontSize: 10, color: '#0f1f3d' }}>← tú</span>}
                             {admin && (
                               <button style={{ marginLeft: 6, border: 'none', background: 'none', color: '#dc2626', cursor: 'pointer', fontSize: 11 }}
-                                onClick={e => { e.stopPropagation(); if (window.confirm(`¿Eliminar a ${r.p}?`)) { setUsers(prev => prev.filter(u => u.name !== r.p)); if (me === r.p) { setMe(null); sessionStorage.removeItem('pwc_me') } } }}>✕</button>
+                                onClick={async e => {
+                                  e.stopPropagation()
+                                  if (window.confirm(`¿Eliminar a ${r.p}? Se borrarán también sus pronósticos y bonus.`)) {
+                                    try {
+                                      await deleteUser(r.p)
+                                      setUsers(prev => prev.filter(u => u.name !== r.p))
+                                      if (me === r.p) { setMe(null); sessionStorage.removeItem('pwc_me') }
+                                      toast2(`${r.p} eliminado`)
+                                    } catch {
+                                      toast2('Error al eliminar', true)
+                                    }
+                                  }
+                                }}>✕</button>
                             )}
                           </td>
                           <td className="td center" style={{ fontWeight: 700, fontSize: 15, color: i === 0 && r.pts > 0 ? '#d97706' : '' }}>{r.pts}</td>
@@ -683,7 +695,7 @@ export default function App() {
                   </table>
                 </div>
                 <h3 style={{ fontSize: 14, fontWeight: 500, marginTop: 14, marginBottom: 8 }}>Peor selección asignada</h3>
-                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 10 }}>+1 pto si marca ≥1 gol en el torneo · +1 pto si recibe ≥3 goles · se calcula solo con los resultados</p>
+                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 10 }}>+1 pto si marca ≥1 gol en el torneo · +1 pto por cada 3 goles recibidos · se calcula solo con los resultados</p>
                 <div className="worst-grid">
                   {players.map(pl => {
                     const wStats = calcWorstTeamBonus(worstT[pl], results, elimResults)
@@ -727,7 +739,7 @@ export default function App() {
               { t: 'Eliminatorias', items: ['Cuenta resultado a 90 min + prórroga', 'No se pronostican empates en eliminatorias', 'Los penaltis cuentan para el marcador'] },
               { t: 'Bloqueo automático', items: ['Pronósticos se bloquean al inicio del partido', 'Bonus se bloquean al inicio del torneo (11 jun 20:00h)'] },
               { t: 'Bonus previos al Mundial', items: ['Campeón: +10 pts', 'Subcampeón: +5 pts', 'Máx. goleador: +5 pts'] },
-              { t: 'Peor selección (automático)', items: ['+1 pto si el equipo asignado marca al menos 1 gol en todo el torneo', '+1 pto si recibe 3 o más goles en todo el torneo', 'Se calcula solo con los resultados introducidos'] },
+              { t: 'Peor selección (automático)', items: ['+1 pto si el equipo asignado marca al menos 1 gol en todo el torneo', '+1 pto por cada 3 goles recibidos en todo el torneo (sin límite)', 'Se calcula solo con los resultados introducidos'] },
               { t: 'Desempate', items: ['1º Más exactos', '2º Acertó el campeón', '3º Reparto del premio'] },
               { t: 'Premio (10€/persona)', items: ['1º: 60%', '2º: 25%', '3º: 15%'] },
             ].map(s => (

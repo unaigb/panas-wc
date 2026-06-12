@@ -28,6 +28,16 @@ export async function registerUser(name, passHash) {
   if (error) throw error
 }
 
+export async function deleteUser(name) {
+  // Borra el usuario y todos sus datos asociados (pronósticos, bonus, etc.)
+  await supabase.from('pwc_predictions').delete().eq('player_name', name)
+  await supabase.from('pwc_bonus').delete().eq('player_name', name)
+  await supabase.from('pwc_bonus_scores').delete().eq('player_name', name)
+  await supabase.from('pwc_worst_teams').delete().eq('player_name', name)
+  const { error } = await supabase.from('pwc_users').delete().eq('name', name)
+  if (error) throw error
+}
+
 export async function saveResult(matchId, homeGoals, awayGoals) {
   const { error } = await supabase.from('pwc_results').upsert({
     match_id: matchId, home_goals: homeGoals, away_goals: awayGoals,
