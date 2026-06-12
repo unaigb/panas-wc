@@ -92,3 +92,41 @@ export function getTeamName(m, side, results, elimResults) {
   const label = side === 'h' ? m.hLabel : m.aLabel
   return resolveTeam(label, results, elimResults) || label
 }
+
+// ── Bonus "peor selección" ──
+// Recorre todos los partidos jugados (grupos + eliminatorias) buscando
+// los que involucran a `teamName`, suma sus goles a favor (gf) y en contra (gc).
+// Reglas: +1 si gf >= 1 (marcó al menos un gol en el torneo)
+//         +1 si gc >= 3 (recibió 3 o más goles en el torneo)
+export function calcWorstTeamBonus(teamName, results, elimResults) {
+  if (!teamName) return { gf: 0, gc: 0, bonus: 0, played: 0 }
+  let gf = 0, gc = 0, played = 0
+
+  // Partidos de grupos (nombres fijos)
+  GROUP_MATCHES.forEach(m => {
+    const r = results[m.id]
+    if (!r || r.home_goals == null) return
+    const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
+    if (isNaN(rh) || isNaN(ra)) return
+    if (m.h === teamName) { gf += rh; gc += ra; played++ }
+    else if (m.a === teamName) { gf += ra; gc += rh; played++ }
+  })
+
+  // Partidos de eliminatorias (nombres resueltos dinámicamente)
+  ELIM_MATCHES.forEach(m => {
+    const r = elimResults[m.id]
+    if (!r || r.home_goals == null) return
+    const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
+    if (isNaN(rh) || isNaN(ra)) return
+    const hTeam = resolveTeam(m.hLabel, results, elimResults)
+    const aTeam = resolveTeam(m.aLabel, results, elimResults)
+    if (hTeam === teamName) { gf += rh; gc += ra; played++ }
+    else if (aTeam === teamName) { gf += ra; gc += rh; played++ }
+  })
+
+  let bonus = 0
+  if (gf >= 1) bonus += 1
+  if (gc >= 3) bonus += 1
+
+  return { gf, gc, bonus, played }
+}

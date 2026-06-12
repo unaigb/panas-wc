@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import './styles.css'
 import { ALL_MATCHES, ELIM_MATCHES, ROUNDS, GROUP_TEAMS, WORST_TEAMS } from './matches.js'
-import { calcGroupTable, getBest3rds, getTeamName } from './bracket.js'
+import { calcGroupTable, getBest3rds, getTeamName, calcWorstTeamBonus } from './bracket.js'
 import { calcPts, hashPass, fmtD, fmtT } from './scoring.js'
 import { loadAll, registerUser, saveResult, savePrediction, saveBonus, saveBonusScore, saveWorstTeam } from './db.js'
 
@@ -303,7 +303,8 @@ export default function App() {
       tot += calcPts(pd?.home_goals, pd?.away_goals, r?.home_goals, r?.away_goals, m.sp, m.el) || 0
     })
     const bs = bonusSc[p] || {}
-    return tot + (bs.champion_pts || 0) + (bs.runner_up_pts || 0) + (bs.scorer_pts || 0)
+    const worstBonus = calcWorstTeamBonus(worstT[p], results, elimResults).bonus
+    return tot + (bs.champion_pts || 0) + (bs.runner_up_pts || 0) + (bs.scorer_pts || 0) + worstBonus
   }
 
   const playerEx = p => {
@@ -411,7 +412,8 @@ export default function App() {
                     {ranking.map((r, i) => {
                       const medal = ['🥇', '🥈', '🥉'][i] || `${i + 1}º`
                       const bs = bonusSc[r.p] || {}
-                      const bT = (bs.champion_pts || 0) + (bs.runner_up_pts || 0) + (bs.scorer_pts || 0)
+                      const worstBonus = calcWorstTeamBonus(worstT[r.p], results, elimResults).bonus
+                      const bT = (bs.champion_pts || 0) + (bs.runner_up_pts || 0) + (bs.scorer_pts || 0) + worstBonus
                       const isMe2 = me === r.p
                       return (
                         <tr key={r.p} style={{ background: isMe2 ? 'rgba(15,31,61,.05)' : i === 0 && r.pts > 0 ? 'rgba(245,158,11,.06)' : '', cursor: 'pointer' }}
@@ -681,26 +683,35 @@ export default function App() {
                   </table>
                 </div>
                 <h3 style={{ fontSize: 14, fontWeight: 500, marginTop: 14, marginBottom: 8 }}>Peor selección asignada</h3>
-                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 10 }}>3 goles en contra = +1 pto · 1 gol a favor = +1 pto</p>
+                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 10 }}>+1 pto si marca ≥1 gol en el torneo · +1 pto si recibe ≥3 goles · se calcula solo con los resultados</p>
                 <div className="worst-grid">
-                  {players.map(pl => (
-                    <div key={pl} className="worst-card">
-                      <div style={{ fontWeight: 500, fontSize: 12, marginBottom: 6 }}>{pl}</div>
-                      {admin ? (
-                        <select className="input-text" style={{ marginBottom: 0 }}
-                          value={worstT[pl] || ''}
-                          onChange={async e => {
-                            setWorstT(prev => ({ ...prev, [pl]: e.target.value }))
-                            await saveWorstTeam(pl, e.target.value)
-                          }}>
-                          <option value="">— Sin asignar —</option>
-                          {WORST_TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
-                        </select>
-                      ) : (
-                        <div style={{ fontSize: 12, color: worstT[pl] ? '#1c1917' : '#78716c' }}>{worstT[pl] || 'Sin asignar'}</div>
-                      )}
-                    </div>
-                  ))}
+                  {players.map(pl => {
+                    const wStats = calcWorstTeamBonus(worstT[pl], results, elimResults)
+                    return (
+                      <div key={pl} className="worst-card">
+                        <div style={{ fontWeight: 500, fontSize: 12, marginBottom: 6 }}>{pl}</div>
+                        {admin ? (
+                          <select className="input-text" style={{ marginBottom: 0 }}
+                            value={worstT[pl] || ''}
+                            onChange={async e => {
+                              setWorstT(prev => ({ ...prev, [pl]: e.target.value }))
+                              await saveWorstTeam(pl, e.target.value)
+                            }}>
+                            <option value="">— Sin asignar —</option>
+                            {WORST_TEAMS.map(t => <option key={t} value={t}>{t}</option>)}
+                          </select>
+                        ) : (
+                          <div style={{ fontSize: 12, color: worstT[pl] ? '#1c1917' : '#78716c' }}>{worstT[pl] || 'Sin asignar'}</div>
+                        )}
+                        {worstT[pl] && (
+                          <div style={{ marginTop: 6, fontSize: 11, color: '#78716c', display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                            <span>GF {wStats.gf} · GC {wStats.gc}</span>
+                            {wStats.bonus > 0 && <span className="pill pill-b">+{wStats.bonus}</span>}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               </>
             )}
@@ -716,7 +727,7 @@ export default function App() {
               { t: 'Eliminatorias', items: ['Cuenta resultado a 90 min + prórroga', 'No se pronostican empates en eliminatorias', 'Los penaltis cuentan para el marcador'] },
               { t: 'Bloqueo automático', items: ['Pronósticos se bloquean al inicio del partido', 'Bonus se bloquean al inicio del torneo (11 jun 20:00h)'] },
               { t: 'Bonus previos al Mundial', items: ['Campeón: +10 pts', 'Subcampeón: +5 pts', 'Máx. goleador: +5 pts'] },
-              { t: 'Peor selección', items: ['3 goles en contra = +1 pto', '1 gol a favor = +1 pto'] },
+              { t: 'Peor selección (automático)', items: ['+1 pto si el equipo asignado marca al menos 1 gol en todo el torneo', '+1 pto si recibe 3 o más goles en todo el torneo', 'Se calcula solo con los resultados introducidos'] },
               { t: 'Desempate', items: ['1º Más exactos', '2º Acertó el campeón', '3º Reparto del premio'] },
               { t: 'Premio (10€/persona)', items: ['1º: 60%', '2º: 25%', '3º: 15%'] },
             ].map(s => (
