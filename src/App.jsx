@@ -695,7 +695,7 @@ export default function App() {
                   </table>
                 </div>
                 <h3 style={{ fontSize: 14, fontWeight: 500, marginTop: 14, marginBottom: 8 }}>Peor selección asignada</h3>
-                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 10 }}>+1 pto si marca ≥1 gol en el torneo · +1 pto por cada 3 goles recibidos · se calcula solo con los resultados</p>
+                <p style={{ fontSize: 11, color: '#78716c', marginBottom: 10 }}>+1 pto por cada gol a favor · +1 pto por cada 3 goles en contra · se calcula solo con los resultados</p>
                 <div className="worst-grid">
                   {players.map(pl => {
                     const wStats = calcWorstTeamBonus(worstT[pl], results, elimResults)
@@ -739,7 +739,7 @@ export default function App() {
               { t: 'Eliminatorias', items: ['Cuenta resultado a 90 min + prórroga', 'No se pronostican empates en eliminatorias', 'Los penaltis cuentan para el marcador'] },
               { t: 'Bloqueo automático', items: ['Pronósticos se bloquean al inicio del partido', 'Bonus se bloquean al inicio del torneo (11 jun 20:00h)'] },
               { t: 'Bonus previos al Mundial', items: ['Campeón: +10 pts', 'Subcampeón: +5 pts', 'Máx. goleador: +5 pts'] },
-              { t: 'Peor selección (automático)', items: ['+1 pto si el equipo asignado marca al menos 1 gol en todo el torneo', '+1 pto por cada 3 goles recibidos en todo el torneo (sin límite)', 'Se calcula solo con los resultados introducidos'] },
+              { t: 'Peor selección (automático)', items: ['+1 pto por cada gol que marca el equipo asignado en el torneo', '+1 pto por cada 3 goles recibidos en todo el torneo', 'Se calcula solo con los resultados introducidos'] },
               { t: 'Desempate', items: ['1º Más exactos', '2º Acertó el campeón', '3º Reparto del premio'] },
               { t: 'Premio (10€/persona)', items: ['1º: 60%', '2º: 25%', '3º: 15%'] },
             ].map(s => (

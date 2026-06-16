@@ -125,7 +125,7 @@ export function calcWorstTeamBonus(teamName, results, elimResults) {
   })
 
   let bonus = 0
-  if (gf >= 1) bonus += 1
+  bonus += gf
   bonus += Math.floor(gc / 3)
 
   return { gf, gc, bonus, played }
