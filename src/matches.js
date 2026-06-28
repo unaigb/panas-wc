@@ -100,45 +100,46 @@ export const GROUP_MATCHES = [
   { id: 72, rd: 'Grupos J3', dt: toDate(46201, .16667), gr: 'J', h: 'Jordania 🇯🇴',     a: 'Argentina 🇦🇷',  sp: false },
 ]
 
-// Eliminatorias — hLabel/aLabel se resuelven automáticamente con calcBracket
+// Eliminatorias con cruces REALES definidos tras la fase de grupos
+// Dieciseisavos: equipos fijos. Octavos en adelante: ganadores de partidos anteriores
 export const ELIM_MATCHES = [
-  // Dieciseavos
-  { id: 73,  rd: 'Dieciseavos', dt: new Date('2026-06-28T20:00:00+02:00'), hLabel: '2ºA',         aLabel: '2ºB',          el: true },
-  { id: 74,  rd: 'Dieciseavos', dt: new Date('2026-06-29T20:00:00+02:00'), hLabel: '1ºE',         aLabel: '3ºA/B/C/D/F',  el: true },
-  { id: 75,  rd: 'Dieciseavos', dt: new Date('2026-06-29T22:00:00+02:00'), hLabel: '1ºF',         aLabel: '2ºC',          el: true },
-  { id: 76,  rd: 'Dieciseavos', dt: new Date('2026-06-30T02:00:00+02:00'), hLabel: '1ºE',         aLabel: '2ºF',          el: true },
-  { id: 77,  rd: 'Dieciseavos', dt: new Date('2026-06-30T20:00:00+02:00'), hLabel: '1ºI',         aLabel: '3ºC/D/F/G/H',  el: true },
-  { id: 78,  rd: 'Dieciseavos', dt: new Date('2026-06-30T22:00:00+02:00'), hLabel: '2ºE',         aLabel: '2ºI',          el: true },
-  { id: 79,  rd: 'Dieciseavos', dt: new Date('2026-07-01T02:00:00+02:00'), hLabel: '1ºA',         aLabel: '3ºC/E/F/H/I',  el: true },
-  { id: 80,  rd: 'Dieciseavos', dt: new Date('2026-07-01T20:00:00+02:00'), hLabel: '1ºL',         aLabel: '3ºE/H/I/J/K',  el: true },
-  { id: 81,  rd: 'Dieciseavos', dt: new Date('2026-07-01T22:00:00+02:00'), hLabel: '1ºD',         aLabel: '3ºB/E/F/I/J',  el: true },
-  { id: 82,  rd: 'Dieciseavos', dt: new Date('2026-07-02T02:00:00+02:00'), hLabel: '1ºG',         aLabel: '3ºA/E/H/I/J',  el: true },
-  { id: 83,  rd: 'Dieciseavos', dt: new Date('2026-07-02T20:00:00+02:00'), hLabel: '2ºK',         aLabel: '2ºL',          el: true },
-  { id: 84,  rd: 'Dieciseavos', dt: new Date('2026-07-02T22:00:00+02:00'), hLabel: '1ºH',         aLabel: '2ºJ',          el: true },
-  { id: 85,  rd: 'Dieciseavos', dt: new Date('2026-07-03T02:00:00+02:00'), hLabel: '1ºB',         aLabel: '3ºE/F/G/I/J',  el: true },
-  { id: 86,  rd: 'Dieciseavos', dt: new Date('2026-07-03T20:00:00+02:00'), hLabel: '1ºJ',         aLabel: '2ºH',          el: true },
-  { id: 87,  rd: 'Dieciseavos', dt: new Date('2026-07-03T22:00:00+02:00'), hLabel: '1ºK',         aLabel: '3ºD/E/I/J/L',  el: true },
-  { id: 88,  rd: 'Dieciseavos', dt: new Date('2026-07-04T02:00:00+02:00'), hLabel: '2ºD',         aLabel: '2ºG',          el: true },
-  // Octavos
-  { id: 89,  rd: 'Octavos',     dt: new Date('2026-07-04T22:00:00+02:00'), hLabel: 'G P74',       aLabel: 'G P77',        el: true },
-  { id: 90,  rd: 'Octavos',     dt: new Date('2026-07-05T02:00:00+02:00'), hLabel: 'G P73',       aLabel: 'G P75',        el: true },
-  { id: 91,  rd: 'Octavos',     dt: new Date('2026-07-05T22:00:00+02:00'), hLabel: 'G P76',       aLabel: 'G P78',        el: true },
-  { id: 92,  rd: 'Octavos',     dt: new Date('2026-07-06T02:00:00+02:00'), hLabel: 'G P79',       aLabel: 'G P80',        el: true },
-  { id: 93,  rd: 'Octavos',     dt: new Date('2026-07-06T22:00:00+02:00'), hLabel: 'G P83',       aLabel: 'G P84',        el: true },
-  { id: 94,  rd: 'Octavos',     dt: new Date('2026-07-07T02:00:00+02:00'), hLabel: 'G P81',       aLabel: 'G P82',        el: true },
-  { id: 95,  rd: 'Octavos',     dt: new Date('2026-07-07T22:00:00+02:00'), hLabel: 'G P86',       aLabel: 'G P88',        el: true },
-  { id: 96,  rd: 'Octavos',     dt: new Date('2026-07-08T02:00:00+02:00'), hLabel: 'G P85',       aLabel: 'G P87',        el: true },
-  // Cuartos
-  { id: 97,  rd: 'Cuartos',     dt: new Date('2026-07-09T22:00:00+02:00'), hLabel: 'G P89',       aLabel: 'G P90',        el: true },
-  { id: 98,  rd: 'Cuartos',     dt: new Date('2026-07-10T22:00:00+02:00'), hLabel: 'G P93',       aLabel: 'G P94',        el: true },
-  { id: 99,  rd: 'Cuartos',     dt: new Date('2026-07-11T22:00:00+02:00'), hLabel: 'G P91',       aLabel: 'G P92',        el: true },
-  { id: 100, rd: 'Cuartos',     dt: new Date('2026-07-12T02:00:00+02:00'), hLabel: 'G P95',       aLabel: 'G P96',        el: true },
-  // Semis
-  { id: 101, rd: 'Semis',       dt: new Date('2026-07-14T22:00:00+02:00'), hLabel: 'G P97',       aLabel: 'G P98',        el: true },
-  { id: 102, rd: 'Semis',       dt: new Date('2026-07-15T22:00:00+02:00'), hLabel: 'G P99',       aLabel: 'G P100',       el: true },
-  // Final y 3er puesto
-  { id: 103, rd: '3er Puesto',  dt: new Date('2026-07-18T22:00:00+02:00'), hLabel: 'P P101',      aLabel: 'P P102',       el: true },
-  { id: 104, rd: 'Final 🏆',    dt: new Date('2026-07-19T22:00:00+02:00'), hLabel: 'G P101',      aLabel: 'G P102',       el: true },
+  // ── Dieciseisavos ──
+  { id: 73,  rd: 'Dieciseavos', dt: new Date('2026-06-28T22:00:00+02:00'), h: 'Sudáfrica 🇿🇦',    a: 'Canadá 🇨🇦',        el: true },
+  { id: 74,  rd: 'Dieciseavos', dt: new Date('2026-06-29T20:00:00+02:00'), h: 'Brasil 🇧🇷',       a: 'Japón 🇯🇵',         el: true },
+  { id: 75,  rd: 'Dieciseavos', dt: new Date('2026-06-29T23:30:00+02:00'), h: 'Alemania 🇩🇪',     a: 'Paraguay 🇵🇾',      el: true },
+  { id: 76,  rd: 'Dieciseavos', dt: new Date('2026-06-30T04:00:00+02:00'), h: 'P. Bajos 🇳🇱',    a: 'Marruecos 🇲🇦',     el: true },
+  { id: 77,  rd: 'Dieciseavos', dt: new Date('2026-06-30T20:00:00+02:00'), h: 'C. Marfil 🇨🇮',   a: 'Noruega 🇳🇴',       el: true },
+  { id: 78,  rd: 'Dieciseavos', dt: new Date('2026-07-01T00:00:00+02:00'), h: 'Francia 🇫🇷',      a: 'Suecia 🇸🇪',        el: true },
+  { id: 79,  rd: 'Dieciseavos', dt: new Date('2026-07-01T04:00:00+02:00'), h: 'México 🇲🇽',       a: 'Ecuador 🇪🇨',       el: true },
+  { id: 80,  rd: 'Dieciseavos', dt: new Date('2026-07-01T19:00:00+02:00'), h: 'Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿',  a: 'Senegal 🇸🇳',       el: true },
+  { id: 81,  rd: 'Dieciseavos', dt: new Date('2026-07-01T23:00:00+02:00'), h: 'Bélgica 🇧🇪',      a: 'Corea del Sur 🇰🇷', el: true },
+  { id: 82,  rd: 'Dieciseavos', dt: new Date('2026-07-02T03:00:00+02:00'), h: 'EEUU 🇺🇸',         a: 'Bosnia 🇧🇦',        el: true },
+  { id: 83,  rd: 'Dieciseavos', dt: new Date('2026-07-02T22:00:00+02:00'), h: 'España 🇪🇸',       a: 'Austria 🇦🇹',       el: true, sp: true },
+  { id: 84,  rd: 'Dieciseavos', dt: new Date('2026-07-03T02:00:00+02:00'), h: 'Portugal 🇵🇹',     a: 'Croacia 🇭🇷',       el: true },
+  { id: 85,  rd: 'Dieciseavos', dt: new Date('2026-07-03T07:00:00+02:00'), h: 'Suiza 🇨🇭',        a: 'Argelia 🇩🇿',       el: true },
+  { id: 86,  rd: 'Dieciseavos', dt: new Date('2026-07-03T21:00:00+02:00'), h: 'Australia 🇦🇺',    a: 'Egipto 🇪🇬',        el: true },
+  { id: 87,  rd: 'Dieciseavos', dt: new Date('2026-07-04T01:00:00+02:00'), h: 'Argentina 🇦🇷',    a: 'Cabo Verde 🇨🇻',    el: true },
+  { id: 88,  rd: 'Dieciseavos', dt: new Date('2026-07-04T04:30:00+02:00'), h: 'Colombia 🇨🇴',     a: 'Ghana 🇬🇭',         el: true },
+  // ── Octavos ──
+  { id: 89,  rd: 'Octavos',     dt: new Date('2026-07-04T22:00:00+02:00'), hLabel: 'G P74', aLabel: 'G P77', el: true },
+  { id: 90,  rd: 'Octavos',     dt: new Date('2026-07-05T02:00:00+02:00'), hLabel: 'G P73', aLabel: 'G P75', el: true },
+  { id: 91,  rd: 'Octavos',     dt: new Date('2026-07-05T22:00:00+02:00'), hLabel: 'G P76', aLabel: 'G P78', el: true },
+  { id: 92,  rd: 'Octavos',     dt: new Date('2026-07-06T02:00:00+02:00'), hLabel: 'G P79', aLabel: 'G P80', el: true },
+  { id: 93,  rd: 'Octavos',     dt: new Date('2026-07-06T22:00:00+02:00'), hLabel: 'G P83', aLabel: 'G P84', el: true },
+  { id: 94,  rd: 'Octavos',     dt: new Date('2026-07-07T02:00:00+02:00'), hLabel: 'G P81', aLabel: 'G P82', el: true },
+  { id: 95,  rd: 'Octavos',     dt: new Date('2026-07-07T22:00:00+02:00'), hLabel: 'G P86', aLabel: 'G P88', el: true },
+  { id: 96,  rd: 'Octavos',     dt: new Date('2026-07-08T02:00:00+02:00'), hLabel: 'G P85', aLabel: 'G P87', el: true },
+  // ── Cuartos ──
+  { id: 97,  rd: 'Cuartos',     dt: new Date('2026-07-09T22:00:00+02:00'), hLabel: 'G P89', aLabel: 'G P90', el: true },
+  { id: 98,  rd: 'Cuartos',     dt: new Date('2026-07-10T22:00:00+02:00'), hLabel: 'G P93', aLabel: 'G P94', el: true },
+  { id: 99,  rd: 'Cuartos',     dt: new Date('2026-07-11T22:00:00+02:00'), hLabel: 'G P91', aLabel: 'G P92', el: true },
+  { id: 100, rd: 'Cuartos',     dt: new Date('2026-07-12T02:00:00+02:00'), hLabel: 'G P95', aLabel: 'G P96', el: true },
+  // ── Semis ──
+  { id: 101, rd: 'Semis',       dt: new Date('2026-07-14T22:00:00+02:00'), hLabel: 'G P97',  aLabel: 'G P98',  el: true },
+  { id: 102, rd: 'Semis',       dt: new Date('2026-07-15T22:00:00+02:00'), hLabel: 'G P99',  aLabel: 'G P100', el: true },
+  // ── Final ──
+  { id: 103, rd: '3er Puesto',  dt: new Date('2026-07-18T22:00:00+02:00'), hLabel: 'P P101', aLabel: 'P P102', el: true },
+  { id: 104, rd: 'Final 🏆',    dt: new Date('2026-07-19T22:00:00+02:00'), hLabel: 'G P101', aLabel: 'G P102', el: true },
 ]
 
 export const ALL_MATCHES = [...GROUP_MATCHES, ...ELIM_MATCHES]
