@@ -47,8 +47,9 @@ export function resolveTeam(label, results, elimResults) {
     if (!m) return null
     const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
     if (isNaN(rh) || isNaN(ra) || rh === ra) return null
-    const hTeam = resolveTeam(m.hLabel, results, elimResults) || m.hLabel
-    const aTeam = resolveTeam(m.aLabel, results, elimResults) || m.aLabel
+    // Soporte para partidos con equipos directos (h/a) o con labels (hLabel/aLabel)
+    const hTeam = m.hLabel ? (resolveTeam(m.hLabel, results, elimResults) || m.hLabel) : m.h
+    const aTeam = m.aLabel ? (resolveTeam(m.aLabel, results, elimResults) || m.aLabel) : m.a
     return rh > ra ? hTeam : aTeam
   }
 
@@ -62,8 +63,8 @@ export function resolveTeam(label, results, elimResults) {
     if (!m) return null
     const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
     if (isNaN(rh) || isNaN(ra) || rh === ra) return null
-    const hTeam = resolveTeam(m.hLabel, results, elimResults) || m.hLabel
-    const aTeam = resolveTeam(m.aLabel, results, elimResults) || m.aLabel
+    const hTeam = m.hLabel ? (resolveTeam(m.hLabel, results, elimResults) || m.hLabel) : m.h
+    const aTeam = m.aLabel ? (resolveTeam(m.aLabel, results, elimResults) || m.aLabel) : m.a
     return rh < ra ? hTeam : aTeam
   }
 
@@ -88,9 +89,13 @@ export function resolveTeam(label, results, elimResults) {
 }
 
 export function getTeamName(m, side, results, elimResults) {
-  if (!m.hLabel) return side === 'h' ? m.h : m.a
-  const label = side === 'h' ? m.hLabel : m.aLabel
-  return resolveTeam(label, results, elimResults) || label
+  // Si tiene labels, resolverlos dinámicamente
+  if (m.hLabel || m.aLabel) {
+    const label = side === 'h' ? m.hLabel : m.aLabel
+    return resolveTeam(label, results, elimResults) || label
+  }
+  // Si tiene equipos directos, devolverlos tal cual
+  return side === 'h' ? m.h : m.a
 }
 
 // ── Bonus "peor selección" ──
@@ -112,14 +117,15 @@ export function calcWorstTeamBonus(teamName, results, elimResults) {
     else if (m.a === teamName) { gf += ra; gc += rh; played++ }
   })
 
-  // Partidos de eliminatorias (nombres resueltos dinámicamente)
+  // Partidos de eliminatorias
   ELIM_MATCHES.forEach(m => {
     const r = elimResults[m.id]
     if (!r || r.home_goals == null) return
     const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
     if (isNaN(rh) || isNaN(ra)) return
-    const hTeam = resolveTeam(m.hLabel, results, elimResults)
-    const aTeam = resolveTeam(m.aLabel, results, elimResults)
+    // Soporte para partidos con equipos directos o con labels
+    const hTeam = m.hLabel ? (resolveTeam(m.hLabel, results, elimResults) || m.hLabel) : m.h
+    const aTeam = m.aLabel ? (resolveTeam(m.aLabel, results, elimResults) || m.aLabel) : m.a
     if (hTeam === teamName) { gf += rh; gc += ra; played++ }
     else if (aTeam === teamName) { gf += ra; gc += rh; played++ }
   })

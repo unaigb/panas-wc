@@ -120,26 +120,26 @@ export const ELIM_MATCHES = [
   { id: 86,  rd: 'Dieciseavos', dt: new Date('2026-07-03T20:00:00+02:00'), h: 'Australia 🇦🇺',    a: 'Egipto 🇪🇬',        el: true },
   { id: 87,  rd: 'Dieciseavos', dt: new Date('2026-07-04T00:00:00+02:00'), h: 'Argentina 🇦🇷',    a: 'Cabo Verde 🇨🇻',    el: true },
   { id: 88,  rd: 'Dieciseavos', dt: new Date('2026-07-04T03:30:00+02:00'), h: 'Colombia 🇨🇴',     a: 'Ghana 🇬🇭',         el: true },
-  // ── Octavos (todos -3h respecto a lo que teníamos) ──
-  { id: 89,  rd: 'Octavos',     dt: new Date('2026-07-04T19:00:00+02:00'), hLabel: 'G P74', aLabel: 'G P77', el: true },
-  { id: 90,  rd: 'Octavos',     dt: new Date('2026-07-04T23:00:00+02:00'), hLabel: 'G P73', aLabel: 'G P75', el: true },
-  { id: 91,  rd: 'Octavos',     dt: new Date('2026-07-05T19:00:00+02:00'), hLabel: 'G P76', aLabel: 'G P78', el: true },
-  { id: 92,  rd: 'Octavos',     dt: new Date('2026-07-05T23:00:00+02:00'), hLabel: 'G P79', aLabel: 'G P80', el: true },
-  { id: 93,  rd: 'Octavos',     dt: new Date('2026-07-06T19:00:00+02:00'), hLabel: 'G P83', aLabel: 'G P84', el: true },
-  { id: 94,  rd: 'Octavos',     dt: new Date('2026-07-06T23:00:00+02:00'), hLabel: 'G P81', aLabel: 'G P82', el: true },
-  { id: 95,  rd: 'Octavos',     dt: new Date('2026-07-07T19:00:00+02:00'), hLabel: 'G P86', aLabel: 'G P88', el: true },
-  { id: 96,  rd: 'Octavos',     dt: new Date('2026-07-07T23:00:00+02:00'), hLabel: 'G P85', aLabel: 'G P87', el: true },
+  // ── Octavos (equipos reales, horarios Madrid) ──
+  { id: 89,  rd: 'Octavos', dt: new Date('2026-07-04T19:00:00+02:00'), h: 'Canadá 🇨🇦',      a: 'Marruecos 🇲🇦',     el: true },
+  { id: 90,  rd: 'Octavos', dt: new Date('2026-07-04T23:00:00+02:00'), h: 'Paraguay 🇵🇾',    a: 'Francia 🇫🇷',       el: true },
+  { id: 91,  rd: 'Octavos', dt: new Date('2026-07-05T22:00:00+02:00'), h: 'Brasil 🇧🇷',      a: 'Noruega 🇳🇴',       el: true },
+  { id: 92,  rd: 'Octavos', dt: new Date('2026-07-06T02:00:00+02:00'), h: 'México 🇲🇽',      a: 'Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿',  el: true },
+  { id: 93,  rd: 'Octavos', dt: new Date('2026-07-06T21:00:00+02:00'), h: 'Portugal 🇵🇹',    a: 'España 🇪🇸',        el: true, sp: true },
+  { id: 94,  rd: 'Octavos', dt: new Date('2026-07-07T02:00:00+02:00'), h: 'EEUU 🇺🇸',        a: 'Bélgica 🇧🇪',       el: true },
+  { id: 95,  rd: 'Octavos', dt: new Date('2026-07-07T18:00:00+02:00'), h: 'Argentina 🇦🇷',   a: 'Egipto 🇪🇬',        el: true },
+  { id: 96,  rd: 'Octavos', dt: new Date('2026-07-07T22:00:00+02:00'), h: 'Suiza 🇨🇭',       a: 'Colombia 🇨🇴',      el: true },
   // ── Cuartos ──
-  { id: 97,  rd: 'Cuartos',     dt: new Date('2026-07-09T22:00:00+02:00'), hLabel: 'G P89', aLabel: 'G P90', el: true },  // día 9: bien
-  { id: 98,  rd: 'Cuartos',     dt: new Date('2026-07-10T21:00:00+02:00'), hLabel: 'G P93', aLabel: 'G P94', el: true },  // día 10: -1h
-  { id: 99,  rd: 'Cuartos',     dt: new Date('2026-07-11T23:00:00+02:00'), hLabel: 'G P91', aLabel: 'G P92', el: true },  // día 11: +1h
-  { id: 100, rd: 'Cuartos',     dt: new Date('2026-07-12T03:00:00+02:00'), hLabel: 'G P95', aLabel: 'G P96', el: true },  // día 12: +1h
-  // ── Semis (-1h) ──
-  { id: 101, rd: 'Semis',       dt: new Date('2026-07-14T21:00:00+02:00'), hLabel: 'G P97',  aLabel: 'G P98',  el: true },
-  { id: 102, rd: 'Semis',       dt: new Date('2026-07-15T21:00:00+02:00'), hLabel: 'G P99',  aLabel: 'G P100', el: true },
+  { id: 97,  rd: 'Cuartos', dt: new Date('2026-07-09T22:00:00+02:00'), hLabel: 'G P89', aLabel: 'G P90', el: true },
+  { id: 98,  rd: 'Cuartos', dt: new Date('2026-07-10T21:00:00+02:00'), hLabel: 'G P93', aLabel: 'G P94', el: true },
+  { id: 99,  rd: 'Cuartos', dt: new Date('2026-07-11T23:00:00+02:00'), hLabel: 'G P91', aLabel: 'G P92', el: true },
+  { id: 100, rd: 'Cuartos', dt: new Date('2026-07-12T03:00:00+02:00'), hLabel: 'G P95', aLabel: 'G P96', el: true },
+  // ── Semis ──
+  { id: 101, rd: 'Semis',   dt: new Date('2026-07-14T21:00:00+02:00'), hLabel: 'G P97',  aLabel: 'G P98',  el: true },
+  { id: 102, rd: 'Semis',   dt: new Date('2026-07-15T21:00:00+02:00'), hLabel: 'G P99',  aLabel: 'G P100', el: true },
   // ── Final ──
-  { id: 103, rd: '3er Puesto',  dt: new Date('2026-07-18T23:00:00+02:00'), hLabel: 'P P101', aLabel: 'P P102', el: true },  // +1h
-  { id: 104, rd: 'Final 🏆',    dt: new Date('2026-07-19T21:00:00+02:00'), hLabel: 'G P101', aLabel: 'G P102', el: true },  // -1h
+  { id: 103, rd: '3er Puesto', dt: new Date('2026-07-18T23:00:00+02:00'), hLabel: 'P P101', aLabel: 'P P102', el: true },
+  { id: 104, rd: 'Final 🏆',   dt: new Date('2026-07-19T21:00:00+02:00'), hLabel: 'G P101', aLabel: 'G P102', el: true },
 ]
 
 export const ALL_MATCHES = [...GROUP_MATCHES, ...ELIM_MATCHES]
