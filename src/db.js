@@ -14,7 +14,7 @@ export async function loadAll() {
     results: Object.fromEntries((results.data || []).map(r => [r.match_id, r])),
     preds: (preds.data || []).reduce((acc, r) => {
       if (!acc[r.match_id]) acc[r.match_id] = {}
-      acc[r.match_id][r.player_name] = { home_goals: r.home_goals, away_goals: r.away_goals }
+      acc[r.match_id][r.player_name] = { home_goals: r.home_goals, away_goals: r.away_goals, penalty_winner: r.penalty_winner || null }
       return acc
     }, {}),
     bonus: Object.fromEntries((bonus.data || []).map(r => [r.player_name, r])),
@@ -43,7 +43,7 @@ export async function saveResult(matchId, homeGoals, awayGoals, penaltyWinner = 
     match_id: matchId,
     home_goals: homeGoals,
     away_goals: awayGoals,
-    penalty_winner: penaltyWinner,
+    penalty_winner: penaltyWinner || null,
     updated_at: new Date().toISOString()
   })
   if (error) throw error
@@ -53,7 +53,7 @@ export async function savePrediction(matchId, playerName, homeGoals, awayGoals, 
   const { error } = await supabase.from('pwc_predictions').upsert({
     match_id: matchId, player_name: playerName,
     home_goals: homeGoals, away_goals: awayGoals,
-    penalty_winner: penaltyWinner,
+    penalty_winner: penaltyWinner || null,
     updated_at: new Date().toISOString()
   })
   if (error) throw error

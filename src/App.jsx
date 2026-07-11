@@ -139,8 +139,8 @@ function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, isSpa
   const aName = m.hLabel ? getTeam(m, 'a') : m.a
   const sp = isSpainMatch(m)
   const predIsDraw = lh !== '' && la !== '' && lh === la
-  const ptColor = pts === null ? '' : pts >= 3 ? 'g' : pts >= 1 ? 'y' : 'r'
-  const ptLabel = pts === null ? '—' : pts >= 6 ? `+${pts}⚡` : pts >= 3 ? '+3' : pts >= 1 ? '+1' : '0'
+  const ptColor = pts === null ? '' : pts >= 2 ? 'g' : pts >= 1 ? 'y' : 'r'
+  const ptLabel = pts === null ? '—' : pts >= 6 ? `+${pts}⚡` : pts === 4 ? '+4' : pts === 3 ? '+3' : pts === 2 ? '+2' : pts === 1 ? '+1' : '0'
   const rowBg = pts === null ? '' : pts >= 3 ? 'rgba(16,185,129,.05)' : pts >= 1 ? 'rgba(251,191,36,.07)' : 'rgba(239,68,68,.05)'
 
   const handleSave = () => {
@@ -596,7 +596,7 @@ export default function App() {
                       {players.map(pl => {
                         const pts = matchPts(m, pl)
                         const pd = preds[m.id]?.[pl]
-                        const pc = pts === null ? '' : pts >= 3 ? 'g' : pts >= 1 ? 'y' : 'r'
+                        const pc = pts === null ? '' : pts >= 2 ? 'g' : pts >= 1 ? 'y' : 'r'
                         const isMe2 = me === pl
                         return (
                           <div key={pl} className={`pred-chip${isMe2 ? ' me' : ''}`}>
@@ -605,7 +605,7 @@ export default function App() {
                               {pd ? `${pd.home_goals}-${pd.away_goals}` : '—'}
                             </span>
                             {pd?.penalty_winner && <span style={{ fontSize: 9, color: '#78716c' }}>pen:{pd.penalty_winner.split(' ')[0]}</span>}
-                            {pts !== null && <span className={`pill pill-${pc}`} style={{ marginTop: 2 }}>{pts >= 6 ? `+${pts}⚡` : pts >= 3 ? '+3' : pts >= 1 ? '+1' : '0'}</span>}
+                            {pts !== null && <span className={`pill pill-${pc}`} style={{ marginTop: 2 }}>{pts >= 6 ? `+${pts}⚡` : pts === 4 ? '+4' : pts === 3 ? '+3' : pts === 2 ? '+2' : pts === 1 ? '+1' : '0'}</span>}
                           </div>
                         )
                       })}
