@@ -3,8 +3,8 @@ import { supabase } from './supabase.js'
 export async function loadAll() {
   const [users, results, preds, bonus, bonusSc, worstT] = await Promise.all([
     supabase.from('pwc_users').select('name, pass_hash'),
-    supabase.from('pwc_results').select('match_id, home_goals, away_goals'),
-    supabase.from('pwc_predictions').select('match_id, player_name, home_goals, away_goals'),
+    supabase.from('pwc_results').select('match_id, home_goals, away_goals, penalty_winner'),
+    supabase.from('pwc_predictions').select('match_id, player_name, home_goals, away_goals, penalty_winner'),
     supabase.from('pwc_bonus').select('player_name, champion, runner_up, top_scorer'),
     supabase.from('pwc_bonus_scores').select('player_name, champion_pts, runner_up_pts, scorer_pts'),
     supabase.from('pwc_worst_teams').select('player_name, team_name'),
