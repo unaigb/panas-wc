@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import './styles.css'
 import { ALL_MATCHES, ELIM_MATCHES, ROUNDS, GROUP_TEAMS, WORST_TEAMS } from './matches.js'
 import { calcGroupTable, getBest3rds, getTeamName, calcWorstTeamBonus } from './bracket.js'
-import { calcPts, hashPass, fmtD, fmtT } from './scoring.js'
+import { calcGroupPts, calcElimPts, hashPass, fmtD, fmtT } from './scoring.js'
 import { loadAll, registerUser, deleteUser, saveResult, savePrediction, saveBonus, saveBonusScore, saveWorstTeam } from './db.js'
 
 const ADMIN_PASS = 'panas2026'
@@ -119,31 +119,41 @@ function AdminModal({ onClose, onLogin }) {
   )
 }
 
-function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, onSavePred }) {
+function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, isSpainMatch, matchPts, onSavePred }) {
   const locked = now >= m.dt && !admin
   const pd = preds[m.id]?.[me]
   const r = allResults[m.id] || {}
-  const pts = hasRes(m.id) ? calcPts(pd?.home_goals, pd?.away_goals, r.home_goals, r.away_goals, m.sp, m.el) : null
+  const pts = matchPts(m, me)
   const [lh, setLh] = useState(pd?.home_goals != null ? String(pd.home_goals) : '')
   const [la, setLa] = useState(pd?.away_goals != null ? String(pd.away_goals) : '')
+  const [lp, setLp] = useState(pd?.penalty_winner || '')
 
   useEffect(() => {
     setLh(pd?.home_goals != null ? String(pd.home_goals) : '')
     setLa(pd?.away_goals != null ? String(pd.away_goals) : '')
-  }, [pd?.home_goals, pd?.away_goals])
+    setLp(pd?.penalty_winner || '')
+  }, [pd?.home_goals, pd?.away_goals, pd?.penalty_winner])
 
   const hName = m.hLabel ? getTeam(m, 'h') : m.h
   const aName = m.hLabel ? getTeam(m, 'a') : m.a
+  const sp = isSpainMatch(m)
+  const predIsDraw = lh !== '' && la !== '' && lh === la
   const ptColor = pts === null ? '' : pts >= 3 ? 'g' : pts >= 1 ? 'y' : 'r'
   const ptLabel = pts === null ? '—' : pts >= 6 ? `+${pts}⚡` : pts >= 3 ? '+3' : pts >= 1 ? '+1' : '0'
   const rowBg = pts === null ? '' : pts >= 3 ? 'rgba(16,185,129,.05)' : pts >= 1 ? 'rgba(251,191,36,.07)' : 'rgba(239,68,68,.05)'
+
+  const handleSave = () => {
+    if (lh === '' || la === '') return
+    const pw = (m.el && predIsDraw) ? lp || null : null
+    onSavePred(m.id, lh, la, pw)
+  }
 
   return (
     <tr style={{ background: rowBg }}>
       <td className="td">
         <div className="match-date">{fmtD(m.dt)} {fmtT(m.dt)}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap', marginTop: 2 }}>
-          {m.sp && <span className="match-tag match-tag-sp">×2</span>}
+          {sp && <span className="match-tag match-tag-sp">×2</span>}
           {m.el && <span className="match-tag match-tag-elim">{m.rd.slice(0, 5)}</span>}
           <span style={{ fontWeight: 500 }}>{hName}</span>
           <span style={{ color: '#78716c', fontSize: 12 }}>vs</span>
@@ -151,19 +161,36 @@ function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, onSav
         </div>
       </td>
       <td className="td center">
-        {hasRes(m.id) ? <b>{r.home_goals}-{r.away_goals}</b>
+        {hasRes(m.id)
+          ? <div>
+              <b>{r.home_goals}-{r.away_goals}</b>
+              {r.penalty_winner && <div style={{ fontSize: 10, color: '#78716c' }}>Pen: {r.penalty_winner}</div>}
+            </div>
           : now >= m.dt ? <span style={{ fontSize: 11, animation: 'pulse 1.5s infinite' }}>En juego</span>
           : <span style={{ color: '#78716c' }}>—</span>}
       </td>
       <td className="td center">
         {locked
-          ? <span style={{ color: pd ? '#1c1917' : '#78716c' }}>{pd ? `${pd.home_goals}-${pd.away_goals}` : '—'}</span>
+          ? <div>
+              <span style={{ color: pd ? '#1c1917' : '#78716c' }}>{pd ? `${pd.home_goals}-${pd.away_goals}` : '—'}</span>
+              {pd?.penalty_winner && <div style={{ fontSize: 10, color: '#78716c' }}>Pen: {pd.penalty_winner}</div>}
+            </div>
           : (
-            <div style={{ display: 'flex', gap: 3, alignItems: 'center', justifyContent: 'center' }}>
-              <input className="input" type="number" min={0} max={99} value={lh} onChange={e => setLh(e.target.value)} placeholder="—" />
-              <span>-</span>
-              <input className="input" type="number" min={0} max={99} value={la} onChange={e => setLa(e.target.value)} placeholder="—" />
-              <button className="btn-primary btn-sm" onClick={() => { if (lh !== '' && la !== '') onSavePred(m.id, lh, la) }}>✓</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                <input className="input" type="number" min={0} max={99} value={lh} onChange={e => setLh(e.target.value)} placeholder="—" />
+                <span>-</span>
+                <input className="input" type="number" min={0} max={99} value={la} onChange={e => setLa(e.target.value)} placeholder="—" />
+                <button className="btn-primary btn-sm" onClick={handleSave}>✓</button>
+              </div>
+              {m.el && predIsDraw && (
+                <select style={{ fontSize: 11, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #d6d3d1', background: '#fff', color: '#1c1917' }}
+                  value={lp} onChange={e => setLp(e.target.value)}>
+                  <option value="">¿Quién gana penaltis?</option>
+                  {hName && hName !== 'undefined' && <option value={hName}>{hName}</option>}
+                  {aName && aName !== 'undefined' && <option value={aName}>{aName}</option>}
+                </select>
+              )}
             </div>
           )}
       </td>
@@ -176,14 +203,28 @@ function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, onSav
   )
 }
 
-function ResEditor({ m, editId, editH, editA, setEditId, setEditH, setEditA, onSave, allResults, hasRes }) {
+function ResEditor({ m, editId, editH, editA, editPW, setEditId, setEditH, setEditA, setEditPW, onSave, allResults, hasRes, getTeam }) {
   const r = allResults[m.id] || {}
+  const isDraw = editH !== '' && editA !== '' && editH === editA
+  const hName = m.hLabel ? getTeam(m, 'h') : m.h
+  const aName = m.hLabel ? getTeam(m, 'a') : m.a
+
   if (editId === m.id) return (
     <div className="res-editor">
       <input className="input" type="number" min={0} max={30} value={editH} onChange={e => setEditH(e.target.value)} autoFocus />
       <span>-</span>
       <input className="input" type="number" min={0} max={30} value={editA} onChange={e => setEditA(e.target.value)} />
-      <button className="btn-primary btn-sm" onClick={() => { if (editH !== '' && editA !== '') onSave(m.id, editH, editA) }}>OK</button>
+      {m.el && isDraw && (
+        <select style={{ fontSize: 11, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #d6d3d1', background: '#fff' }}
+          value={editPW} onChange={e => setEditPW(e.target.value)}>
+          <option value="">¿Ganador penaltis?</option>
+          {hName && <option value={hName}>{hName}</option>}
+          {aName && <option value={aName}>{aName}</option>}
+        </select>
+      )}
+      <button className="btn-primary btn-sm" onClick={() => {
+        if (editH !== '' && editA !== '') onSave(m.id, editH, editA, m.el && isDraw ? editPW || null : null)
+      }}>OK</button>
       <button className="btn btn-sm" onClick={() => setEditId(null)}>✕</button>
     </div>
   )
@@ -192,6 +233,7 @@ function ResEditor({ m, editId, editH, editA, setEditId, setEditH, setEditA, onS
       setEditId(m.id)
       setEditH(r.home_goals != null ? String(r.home_goals) : '')
       setEditA(r.away_goals != null ? String(r.away_goals) : '')
+      setEditPW(r.penalty_winner || '')
     }}>
       {hasRes(m.id) ? '✎ Editar' : '+ Resultado'}
     </button>
@@ -221,6 +263,7 @@ export default function App() {
   const [editId, setEditId] = useState(null)
   const [editH, setEditH] = useState('')
   const [editA, setEditA] = useState('')
+  const [editPW, setEditPW] = useState('')
 
   const allResults = { ...results, ...elimResults }
 
@@ -273,35 +316,51 @@ export default function App() {
   const getTeam = (m, side) => getTeamName(m, side, results, elimResults)
   const isLocked = m => now >= m.dt && !admin
 
-  const doSaveResult = async (mid, h, a) => {
+  // ×2 en eliminatorias solo si juega España
+  const isSpainMatch = m => {
+    if (!m.el) return m.sp || false
+    const h = getTeam(m, 'h'), a = getTeam(m, 'a')
+    return h?.includes('España') || a?.includes('España')
+  }
+
+  // Calcular puntos de un partido para un jugador
+  const matchPts = (m, playerName) => {
+    if (!hasRes(m.id)) return null
+    const pd = preds[m.id]?.[playerName]
+    const r = allResults[m.id]
+    const sp = isSpainMatch(m)
+    if (m.el) {
+      const hTeam = getTeam(m, 'h')
+      const aTeam = getTeam(m, 'a')
+      return calcElimPts(pd, r, hTeam, aTeam, sp)
+    }
+    return calcGroupPts(pd, r, sp)
+  }
+
+  const doSaveResult = async (mid, h, a, penaltyWinner = null) => {
     try {
-      await saveResult(mid, parseInt(h), parseInt(a))
-      const newR = { match_id: mid, home_goals: parseInt(h), away_goals: parseInt(a) }
+      await saveResult(mid, parseInt(h), parseInt(a), penaltyWinner)
+      const newR = { match_id: mid, home_goals: parseInt(h), away_goals: parseInt(a), penalty_winner: penaltyWinner }
       if (ELIM_MATCHES.find(m => m.id === mid)) setElimResults(prev => ({ ...prev, [mid]: newR }))
       else setResults(prev => ({ ...prev, [mid]: newR }))
       toast2('Resultado guardado ✓'); setEditId(null)
     } catch { toast2('Error al guardar', true) }
   }
 
-  const doSavePred = async (mid, h, a) => {
+  const doSavePred = async (mid, h, a, penaltyWinner = null) => {
     const m = ALL_MATCHES.find(x => x.id === mid)
     if (!m || !me) return
     if (now >= m.dt && !admin) { toast2('Partido bloqueado 🔒', true); return }
     try {
-      await savePrediction(mid, me, parseInt(h), parseInt(a))
-      setPreds(prev => ({ ...prev, [mid]: { ...(prev[mid] || {}), [me]: { home_goals: parseInt(h), away_goals: parseInt(a) } } }))
+      await savePrediction(mid, me, parseInt(h), parseInt(a), penaltyWinner)
+      setPreds(prev => ({ ...prev, [mid]: { ...(prev[mid] || {}), [me]: { home_goals: parseInt(h), away_goals: parseInt(a), penalty_winner: penaltyWinner } } }))
       toast2('Pronóstico guardado ✓')
     } catch { toast2('Error al guardar', true) }
   }
 
   const playerPts = p => {
     let tot = 0
-    ALL_MATCHES.forEach(m => {
-      if (!hasRes(m.id)) return
-      const pd = preds[m.id]?.[p]
-      const r = allResults[m.id]
-      tot += calcPts(pd?.home_goals, pd?.away_goals, r?.home_goals, r?.away_goals, m.sp, m.el) || 0
-    })
+    ALL_MATCHES.forEach(m => { const pts = matchPts(m, p); if (pts != null) tot += pts })
     const bs = bonusSc[p] || {}
     const worstBonus = calcWorstTeamBonus(worstT[p], results, elimResults).bonus
     return tot + (bs.champion_pts || 0) + (bs.runner_up_pts || 0) + (bs.scorer_pts || 0) + worstBonus
@@ -309,12 +368,7 @@ export default function App() {
 
   const playerEx = p => {
     let tot = 0
-    ALL_MATCHES.forEach(m => {
-      if (!hasRes(m.id)) return
-      const pd = preds[m.id]?.[p]
-      const r = allResults[m.id]
-      if (calcPts(pd?.home_goals, pd?.away_goals, r?.home_goals, r?.away_goals, m.sp, m.el) >= 3) tot++
-    })
+    ALL_MATCHES.forEach(m => { const pts = matchPts(m, p); if (pts >= 3) tot++ })
     return tot
   }
 
@@ -490,7 +544,8 @@ export default function App() {
                       {ALL_MATCHES.filter(m => m.rd === round).map(m => (
                         <MatchRow key={m.id} m={m} me={me} now={now} admin={admin}
                           preds={preds} allResults={allResults} hasRes={hasRes}
-                          getTeam={getTeam} onSavePred={doSavePred} />
+                          getTeam={getTeam} isSpainMatch={isSpainMatch}
+                          matchPts={matchPts} onSavePred={doSavePred} />
                       ))}
                     </tbody>
                   </table>
@@ -513,6 +568,7 @@ export default function App() {
               const played = hasRes(m.id), live = now >= m.dt && !played
               const hName = m.hLabel ? getTeam(m, 'h') : m.h
               const aName = m.hLabel ? getTeam(m, 'a') : m.a
+              const sp = isSpainMatch(m)
               return (
                 <div key={m.id} className="card" style={{ marginBottom: 8 }}>
                   <div className="match-header">
@@ -520,25 +576,25 @@ export default function App() {
                       <span className="match-date">{fmtD(m.dt)} {fmtT(m.dt)}</span>
                       {m.gr && <span className="match-tag match-tag-gr">Gr.{m.gr}</span>}
                       {m.el && <span className="match-tag match-tag-elim">{m.rd}</span>}
-                      {m.sp && <span className="match-tag match-tag-sp">×2</span>}
+                      {sp && <span className="match-tag match-tag-sp">×2</span>}
                     </div>
                     <div className="match-actions">
                       {played && <span className="pill pill-g">✓ Jugado</span>}
                       {live && <span className="pill pill-y" style={{ animation: 'pulse 1.5s infinite' }}>En juego</span>}
-                      {admin && <ResEditor m={m} editId={editId} editH={editH} editA={editA}
-                        setEditId={setEditId} setEditH={setEditH} setEditA={setEditA}
-                        onSave={doSaveResult} allResults={allResults} hasRes={hasRes} />}
+                      {admin && <ResEditor m={m} editId={editId} editH={editH} editA={editA} editPW={editPW}
+                        setEditId={setEditId} setEditH={setEditH} setEditA={setEditA} setEditPW={setEditPW}
+                        onSave={doSaveResult} allResults={allResults} hasRes={hasRes} getTeam={getTeam} />}
                     </div>
                   </div>
                   <div className="match-teams">
                     {hName} <span style={{ color: '#78716c', fontWeight: 400, fontSize: 12 }}>vs</span> {aName}
-                    {played && <span className="match-score">{r.home_goals} — {r.away_goals}</span>}
+                    {played && <span className="match-score">{r.home_goals} — {r.away_goals}{r.penalty_winner ? ` (pen: ${r.penalty_winner})` : ''}</span>}
                   </div>
                   {players.length > 0 && (
                     <div className="match-preds">
                       {players.map(pl => {
+                        const pts = matchPts(m, pl)
                         const pd = preds[m.id]?.[pl]
-                        const pts = played ? calcPts(pd?.home_goals, pd?.away_goals, r.home_goals, r.away_goals, m.sp, m.el) : null
                         const pc = pts === null ? '' : pts >= 3 ? 'g' : pts >= 1 ? 'y' : 'r'
                         const isMe2 = me === pl
                         return (
@@ -547,6 +603,7 @@ export default function App() {
                             <span style={{ fontSize: 12, color: pd ? '#1c1917' : '#78716c' }}>
                               {pd ? `${pd.home_goals}-${pd.away_goals}` : '—'}
                             </span>
+                            {pd?.penalty_winner && <span style={{ fontSize: 9, color: '#78716c' }}>pen:{pd.penalty_winner.split(' ')[0]}</span>}
                             {pts !== null && <span className={`pill pill-${pc}`} style={{ marginTop: 2 }}>{pts >= 6 ? `+${pts}⚡` : pts >= 3 ? '+3' : pts >= 1 ? '+1' : '0'}</span>}
                           </div>
                         )
@@ -735,8 +792,8 @@ export default function App() {
           <div>
             <h2 style={{ fontSize: 17, fontWeight: 500, marginBottom: 12 }}>Reglamento</h2>
             {[
-              { t: 'Puntuación', items: ['🟢 Exacto: 3 pts', '🟡 Tendencia (ganador/empate): 1 pt', '🔴 Error: 0 pts', '⚡ España y rivales de grupo: ×2'] },
-              { t: 'Eliminatorias', items: ['Cuenta resultado a 90 min + prórroga', 'No se pronostican empates en eliminatorias', 'Los penaltis cuentan para el marcador'] },
+              { t: 'Puntuación', items: ['🟢 Exacto: 3 pts', '🟡 Tendencia (ganador/empate): 1 pt', '🔴 Error: 0 pts', '⚡ Grupos: España y sus rivales de grupo ×2 · Eliminatorias: solo partidos de España ×2'] },
+              { t: 'Eliminatorias y penaltis', items: ['Cuenta resultado a 90 min + prórroga (marcador real)', 'Empate + aciertas ganador penaltis + marcador exacto = +3', 'Empate + aciertas ganador penaltis = +2', 'Empate (sin acertar ganador) = +1', 'Ganador correcto sin pronosticar empate = +1', 'Todo ×2 si juega España'] },
               { t: 'Bloqueo automático', items: ['Pronósticos se bloquean al inicio del partido', 'Bonus se bloquean al inicio del torneo (11 jun 20:00h)'] },
               { t: 'Bonus previos al Mundial', items: ['Campeón: +10 pts', 'Subcampeón: +5 pts', 'Máx. goleador: +5 pts'] },
               { t: 'Peor selección (automático)', items: ['+1 pto por cada gol que marca el equipo asignado en el torneo', '+1 pto por cada 3 goles recibidos en todo el torneo', 'Se calcula solo con los resultados introducidos'] },

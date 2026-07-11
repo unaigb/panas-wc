@@ -24,6 +24,7 @@ create table if not exists pwc_predictions (
   player_name text not null,
   home_goals integer not null,
   away_goals integer not null,
+  penalty_winner text,
   updated_at timestamptz default now(),
   primary key (match_id, player_name)
 );

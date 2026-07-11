@@ -46,11 +46,14 @@ export function resolveTeam(label, results, elimResults) {
     const m = ELIM_MATCHES.find(x => x.id === mid)
     if (!m) return null
     const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
-    if (isNaN(rh) || isNaN(ra) || rh === ra) return null
-    // Soporte para partidos con equipos directos (h/a) o con labels (hLabel/aLabel)
+    if (isNaN(rh) || isNaN(ra)) return null
     const hTeam = m.hLabel ? (resolveTeam(m.hLabel, results, elimResults) || m.hLabel) : m.h
     const aTeam = m.aLabel ? (resolveTeam(m.aLabel, results, elimResults) || m.aLabel) : m.a
-    return rh > ra ? hTeam : aTeam
+    if (rh > ra) return hTeam
+    if (ra > rh) return aTeam
+    // Empate: usar ganador por penaltis si está definido
+    if (r.penalty_winner) return r.penalty_winner
+    return null
   }
 
   // Perdedor de partido eliminatorio: "P P101"
@@ -62,10 +65,14 @@ export function resolveTeam(label, results, elimResults) {
     const m = ELIM_MATCHES.find(x => x.id === mid)
     if (!m) return null
     const rh = parseInt(r.home_goals), ra = parseInt(r.away_goals)
-    if (isNaN(rh) || isNaN(ra) || rh === ra) return null
+    if (isNaN(rh) || isNaN(ra)) return null
     const hTeam = m.hLabel ? (resolveTeam(m.hLabel, results, elimResults) || m.hLabel) : m.h
     const aTeam = m.aLabel ? (resolveTeam(m.aLabel, results, elimResults) || m.aLabel) : m.a
-    return rh < ra ? hTeam : aTeam
+    if (rh < ra) return hTeam
+    if (ra < rh) return aTeam
+    // Empate: el perdedor es el que no ganó en penaltis
+    if (r.penalty_winner) return r.penalty_winner === hTeam ? aTeam : hTeam
+    return null
   }
 
   // 1º o 2º de grupo: "1ºA", "2ºB"

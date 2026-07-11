@@ -38,18 +38,22 @@ export async function deleteUser(name) {
   if (error) throw error
 }
 
-export async function saveResult(matchId, homeGoals, awayGoals) {
+export async function saveResult(matchId, homeGoals, awayGoals, penaltyWinner = null) {
   const { error } = await supabase.from('pwc_results').upsert({
-    match_id: matchId, home_goals: homeGoals, away_goals: awayGoals,
+    match_id: matchId,
+    home_goals: homeGoals,
+    away_goals: awayGoals,
+    penalty_winner: penaltyWinner,
     updated_at: new Date().toISOString()
   })
   if (error) throw error
 }
 
-export async function savePrediction(matchId, playerName, homeGoals, awayGoals) {
+export async function savePrediction(matchId, playerName, homeGoals, awayGoals, penaltyWinner = null) {
   const { error } = await supabase.from('pwc_predictions').upsert({
     match_id: matchId, player_name: playerName,
     home_goals: homeGoals, away_goals: awayGoals,
+    penalty_winner: penaltyWinner,
     updated_at: new Date().toISOString()
   })
   if (error) throw error
