@@ -65,14 +65,19 @@ export function calcElimPts(pred, result, hTeam, aTeam, sp) {
   if (realDraw && result.penalty_winner) {
     // Partido fue a penaltis
     if (ph === pa) {
-      // Pronosticó empate ✓ — ¿acertó ganador penaltis?
+      // Pronosticó empate ✓
       const acertoPenaltis = pred.penalty_winner === result.penalty_winner
-      if (acertoPenaltis) return 3 * mult
-      return 1 * mult
+      const acertoMarcador = ph === rh && pa === ra
+      if (acertoPenaltis && acertoMarcador) return 3 * mult  // empate exacto + ganador penaltis
+      if (acertoPenaltis) return 2 * mult                    // empate (sin marcador exacto) + ganador penaltis
+      return 1 * mult                                         // empate solo
     } else {
       // No pronosticó empate — ¿favoreció al ganador?
       const predWinner = ph > pa ? hTeam : aTeam
       if (predWinner === result.penalty_winner) return 1 * mult
+      return 0
+    }
+  }
       return 0
     }
   }
