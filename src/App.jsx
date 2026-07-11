@@ -128,15 +128,11 @@ function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, isSpa
   const [la, setLa] = useState(pd?.away_goals != null ? String(pd.away_goals) : '')
   const [lp, setLp] = useState(pd?.penalty_winner || '')
 
-  // Solo sincronizar desde Supabase si el usuario no está editando actualmente
-  const [editing, setEditing] = useState(false)
-
+  // Solo sincronizar si aún no hay datos locales (primera carga)
   useEffect(() => {
-    if (!editing) {
-      setLh(pd?.home_goals != null ? String(pd.home_goals) : '')
-      setLa(pd?.away_goals != null ? String(pd.away_goals) : '')
-      setLp(pd?.penalty_winner || '')
-    }
+    if (lh === '' && pd?.home_goals != null) setLh(String(pd.home_goals))
+    if (la === '' && pd?.away_goals != null) setLa(String(pd.away_goals))
+    if (lp === '' && pd?.penalty_winner) setLp(pd.penalty_winner)
   }, [pd?.home_goals, pd?.away_goals, pd?.penalty_winner])
 
   const hName = m.hLabel ? getTeam(m, 'h') : m.h
@@ -151,7 +147,6 @@ function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, isSpa
     if (lh === '' || la === '') return
     const pw = (m.el && predIsDraw) ? lp || null : null
     onSavePred(m.id, lh, la, pw)
-    setEditing(false)
   }
 
   return (
@@ -184,14 +179,14 @@ function MatchRow({ m, me, now, admin, preds, allResults, hasRes, getTeam, isSpa
           : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 3, alignItems: 'center' }}>
-                <input className="input" type="number" min={0} max={99} value={lh} onChange={e => { setEditing(true); setLh(e.target.value) }} placeholder="—" />
+                <input className="input" type="number" min={0} max={99} value={lh} onChange={e => setLh(e.target.value)} placeholder="—" />
                 <span>-</span>
-                <input className="input" type="number" min={0} max={99} value={la} onChange={e => { setEditing(true); setLa(e.target.value) }} placeholder="—" />
+                <input className="input" type="number" min={0} max={99} value={la} onChange={e => setLa(e.target.value)} placeholder="—" />
                 <button className="btn-primary btn-sm" onClick={handleSave}>✓</button>
               </div>
               {m.el && predIsDraw && (
                 <select style={{ fontSize: 11, padding: '3px 6px', borderRadius: 6, border: '0.5px solid #d6d3d1', background: '#fff', color: '#1c1917' }}
-                  value={lp} onChange={e => { setEditing(true); setLp(e.target.value) }}>
+                  value={lp} onChange={e => setLp(e.target.value)}>
                   <option value="">¿Quién gana penaltis?</option>
                   {hName && hName !== 'undefined' && <option value={hName}>{hName}</option>}
                   {aName && aName !== 'undefined' && <option value={aName}>{aName}</option>}
