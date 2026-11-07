@@ -15,6 +15,7 @@ create table if not exists pwc_results (
   match_id integer primary key,
   home_goals integer not null,
   away_goals integer not null,
+  penalty_winner text,
   updated_at timestamptz default now()
 );
 
